@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Carnet de cave</title>
+<style>
+  body { margin: 0; background: #3b3a36; font-family: "Courier New", Courier, monospace; color: #23201a; }
+  .fiche { max-width: 760px; margin: 28px auto; background: #f1ead9; padding: 34px 38px 40px;
+           box-shadow: 0 6px 0 #26251f; border-top: 14px solid #23201a; position: relative; }
+  .entete { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 3px double #23201a; padding-bottom: 10px; }
+  h1 { font-family: Georgia, "Times New Roman", serif; font-size: 34px; margin: 0; letter-spacing: 1px; }
+  .numero { font-size: 13px; }
+  p.note { font-size: 14px; line-height: 1.5; }
+  .exemples button { font: inherit; font-size: 13px; background: none; border: 1px dashed #23201a; padding: 5px 9px; margin: 0 6px 6px 0; cursor: pointer; }
+  .exemples button:hover { background: #23201a; color: #f1ead9; }
+  table.mesures { width: 100%; border-collapse: collapse; margin-top: 10px; }
+  table.mesures td { border-bottom: 1px dotted #7b7566; padding: 5px 0; font-size: 15px; }
+  table.mesures td.valeur { text-align: right; width: 150px; }
+  input, select { font: inherit; background: transparent; border: none; border-bottom: 2px solid #23201a; text-align: right; width: 130px; padding: 2px 0; }
+  select { width: auto; text-align: left; }
+  input:focus, select:focus { outline: none; background: #fffbe9; }
+  .envoi { margin-top: 22px; display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+  .envoi button { font: inherit; font-weight: bold; letter-spacing: 2px; background: #23201a; color: #f1ead9; border: none; padding: 12px 22px; cursor: pointer; }
+  .verdict { margin-top: 30px; border: 3px solid #23201a; padding: 18px 20px 22px; position: relative; }
+  .tampon { position: absolute; right: 18px; top: -22px; transform: rotate(-7deg); font-family: Georgia, serif; font-size: 26px; font-weight: bold;
+            letter-spacing: 3px; padding: 6px 16px; border: 4px solid; background: #f1ead9; }
+  .tampon.oui { color: #1d6b43; } .tampon.non { color: #9c2b2b; }
+  .regle { position: relative; height: 34px; margin: 26px 0 30px; border-bottom: 2px solid #23201a;
+           background: repeating-linear-gradient(90deg, #23201a 0 1px, transparent 1px 10%); }
+  .regle .curseur { position: absolute; bottom: 0; width: 0; height: 0; border-left: 9px solid transparent; border-right: 9px solid transparent; border-bottom: 20px solid #23201a; margin-left: -9px; }
+  .regle .seuil { position: absolute; top: -8px; bottom: -22px; border-left: 2px dashed #9c2b2b; }
+  .regle .seuil span { position: absolute; bottom: -2px; left: 5px; font-size: 12px; color: #9c2b2b; white-space: nowrap; }
+  .verres span { display: inline-block; width: 34px; height: 34px; line-height: 34px; text-align: center; border: 2px solid #23201a; border-radius: 0 0 17px 17px; margin-right: 6px; font-weight: bold; }
+  .verres span.plein { background: #23201a; color: #f1ead9; }
+  .erreur { color: #9c2b2b; font-weight: bold; }
+  .pied { font-size: 12px; margin-top: 26px; border-top: 1px solid #7b7566; padding-top: 8px; }
+</style>
+</head>
+<body>
+<div class="fiche">
+  <div class="entete">
+    <h1>Carnet de cave</h1>
+    <span class="numero">bulletin d'analyse</span>
+  </div>
+  <p class="note">Recopiez les mesures du laboratoire. Le carnet estime la probabilité qu'un jury donne au moins 7 sur 10 à ce vin.</p>
+
+  <div class="exemples">
+    <button type="button" onclick="remplir(0)">un blanc noté 8</button>
+    <button type="button" onclick="remplir(1)">un rouge noté 4</button>
+    <button type="button" onclick="remplir(2)">un blanc noté 6</button>
+  </div>
+
+  <form method="post">
+    <table class="mesures">
+      <tr><td>Couleur</td><td class="valeur">
+        <select name="est_rouge">
+          <option value="0" {% if saisie.get('est_rouge') == '0' %}selected{% endif %}>blanc</option>
+          <option value="1" {% if saisie.get('est_rouge') == '1' %}selected{% endif %}>rouge</option>
+        </select></td></tr>
+      {% for nom, libelle, exemple, pas in champs %}
+      <tr><td>{{ libelle }}</td>
+          <td class="valeur"><input type="number" name="{{ nom }}" step="{{ pas }}" value="{{ saisie.get(nom, exemple) }}" required></td></tr>
+      {% endfor %}
+    </table>
+    <div class="envoi">
+      <label>Usage prévu
+        <select name="besoin">
+          {% for cle, (libelle, seuil) in besoins.items() %}
+          <option value="{{ cle }}" {% if saisie.get('besoin', 'equilibre') == cle %}selected{% endif %}>{{ libelle }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <button type="submit">ANALYSER</button>
+    </div>
+  </form>
+
+  {% if erreur %}<p class="erreur">{{ erreur }}</p>{% endif %}
+
+  {% if resultat %}
+  <div class="verdict">
+    <div class="tampon {{ 'oui' if resultat.bon else 'non' }}">{{ 'RETENU' if resultat.bon else 'ÉCARTÉ' }}</div>
+    <div>Probabilité d'être un bon vin</div>
+    <div style="font-family: Georgia, serif; font-size: 44px; font-weight: bold;">{{ (resultat.probabilite * 100) | round(0) | int }} %</div>
+    <div class="regle">
+      <div class="curseur" style="left: {{ resultat.probabilite * 100 }}%"></div>
+      <div class="seuil" style="left: {{ resultat.seuil * 100 }}%"><span>seuil {{ (resultat.seuil * 100) | int }} %</span></div>
+    </div>
+    <div>Notes reçues par les 8 vins de la cave qui lui ressemblent le plus</div>
+    <p class="verres">{% for note in resultat.notes_des_vins_ressemblants %}<span class="{{ 'plein' if note >= 7 else '' }}">{{ note }}</span>{% endfor %}</p>
+    <div style="font-size: 13px;">Usage choisi : {{ resultat.besoin }}. Un verre plein est un vin noté 7 ou plus.</div>
+  </div>
+  {% endif %}
+
+  <div class="pied">Modèle utilisé : {{ nom_modele }}. Dans la cave, un vin sur cinq est bon. Une probabilité de 30 % est donc déjà un signal favorable.</div>
+</div>
+<script>
+  const exemples = [
+    {"est_rouge": 0, "fixed acidity": 6.4, "volatile acidity": 0.15, "citric acid": 0.36, "residual sugar": 1.8, "chlorides": 0.034, "free sulfur dioxide": 43, "total sulfur dioxide": 150, "density": 0.9922, "pH": 3.42, "sulphates": 0.69, "alcohol": 11.0},
+    {"est_rouge": 1, "fixed acidity": 8.2, "volatile acidity": 0.915, "citric acid": 0.27, "residual sugar": 2.1, "chlorides": 0.088, "free sulfur dioxide": 7, "total sulfur dioxide": 23, "density": 0.9962, "pH": 3.26, "sulphates": 0.47, "alcohol": 10.0},
+    {"est_rouge": 0, "fixed acidity": 7.6, "volatile acidity": 0.28, "citric acid": 0.39, "residual sugar": 1.2, "chlorides": 0.038, "free sulfur dioxide": 21, "total sulfur dioxide": 115, "density": 0.994, "pH": 3.16, "sulphates": 0.67, "alcohol": 10.0}
+  ];
+  function remplir(i) {
+    for (const [nom, valeur] of Object.entries(exemples[i])) {
+      document.querySelector(`[name="${nom}"]`).value = valeur;
+    }
+  }
+</script>
+</body>
+</html>
