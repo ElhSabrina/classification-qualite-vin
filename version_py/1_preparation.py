@@ -98,7 +98,7 @@ ax.set_title("Nombre de vins par note (bons vins en violet)")
 plt.show()
 
 # %% [markdown]
-# Il reste 5320 vins distincts et 19% d'entre eux sont bons. Il y a donc environ un bon vin pour quatre mauvais. La frontière passe entre les notes 6 et 7, qui sont les deux notes les plus fréquentes.
+# Il reste 5320 vins distincts et 19% d'entre eux sont bons. Il y a donc environ un bon vin pour quatre mauvais. La frontière passe entre les notes 6 et 7, qui font partie des notes les plus fréquentes.
 #
 # L'accuracy est la part de bonnes réponses sur tous les vins. Ici elle est trompeuse. Un modèle qui répondrait toujours mauvais aurait 81% d'accuracy sans trouver un seul bon vin. Nous utilisons donc quatre autres mesures dans tout le projet.
 #
