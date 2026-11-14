@@ -8,22 +8,12 @@ Le but est de prédire si un vin est bon, c'est à dire noté au moins 7 sur 10 
 
 ## Sommaire
 
-1. [Résultats](#résultats)
-2. [Les notebooks](#les-notebooks)
-3. [Sommaire détaillé des trois parties](#sommaire-détaillé-des-trois-parties)
-4. [L'application web](#lapplication-web)
-5. [Lancer le projet](#lancer-le-projet)
-6. [Organisation du dépôt](#organisation-du-dépôt)
-7. [Source des données](#source-des-données)
-
-## Résultats
-
-| | |
-|---|---|
-| Données | 6 497 vins portugais, 1 177 doublons supprimés, 5 320 vins distincts dont 19 % de bons |
-| Modèle retenu | SVM à noyau gaussien, meilleure AUC moyenne sur 25 découpages (0,843 contre 0,840 pour les k plus proches voisins) |
-| Seuil de décision | 0,26 au lieu de 0,5, choisi sur l'entraînement pour le meilleur F1-score |
-| Sur le jeu de test | AUC 0,850, rappel 79 %, précision 46 %, soit 2,4 fois mieux que le hasard |
+1. [Les notebooks](#les-notebooks)
+2. [Sommaire détaillé des trois parties](#sommaire-détaillé-des-trois-parties)
+3. [L'application web](#lapplication-web)
+4. [Lancer le projet](#lancer-le-projet)
+5. [Organisation du dépôt](#organisation-du-dépôt)
+6. [Source des données](#source-des-données)
 
 ## Les notebooks
 
