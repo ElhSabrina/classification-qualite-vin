@@ -140,3 +140,7 @@ pytest
 | `docs/` | le site de navigation des notebooks |
 | `Dockerfile, requirements.txt` | l'environnement pour reproduire le projet |
 
+
+## Source des données
+
+P. Cortez, A. Cerdeira, F. Almeida, T. Matos et J. Reis. Modeling wine preferences by data mining from physicochemical properties. Decision Support Systems, 47(4), 547-553, 2009.
